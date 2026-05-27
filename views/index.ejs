@@ -8,15 +8,17 @@
     <div class="popular-dishes">
         <% if (popularDishes && popularDishes.length > 0) { %>
             <% popularDishes.forEach(function(dish) { %>
-                <div class="dish-card">
-                    <% if (dish.image_url) { %>
-                        <img src="/<%= dish.image_url %>" alt="<%= dish.name %>">
-                    <% } else { %>
-                        <img src="/assets/placeholder.jpg" alt="Нет фото">
-                    <% } %>
-                    <h3><%= dish.name %></h3>
-                    <div class="price"><%= dish.price %> BYN</div>
-                </div>
+                <a href="/menu" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="dish-card">
+                        <% if (dish.image_url) { %>
+                            <img src="/<%= dish.image_url %>" alt="<%= dish.name %>">
+                        <% } else { %>
+                            <img src="/assets/placeholder.jpg" alt="Нет фото">
+                        <% } %>
+                        <h3><%= dish.name %></h3>
+                        <div class="price"><%= dish.price %> BYN</div>
+                    </div>
+                </a>
             <% }); %>
         <% } else { %>
             <p style="text-align:center; color:#aaa;">В данный момент популярные блюда отсутствуют.</p>

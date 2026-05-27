@@ -9,7 +9,6 @@
         </p>
     <% } %>
 
-    <!-- Вкладки категорий -->
     <div id="category-tabs" style="text-align: center; margin-bottom: 20px;">
         <button class="tab-btn active" data-category="all">Все</button>
         <% categories.forEach(function(cat) { %>
@@ -17,7 +16,6 @@
         <% }); %>
     </div>
 
-    <!-- Блюда -->
     <% if (dishes && dishes.length > 0) { %>
         <div class="menu-dishes" id="dishes-container">
             <% dishes.forEach(function(dish) { %>
@@ -30,7 +28,6 @@
                     <h3><%= dish.name %></h3>
                     <div class="price"><%= dish.price %> BYN</div>
 
-                    <!-- Кнопка "Подробнее" -->
                     <button class="btn"
                             onclick="openModal('<%= dish.name %>',
                                     '<%= dish.description.replace(/'/g, "\\'").replace(/\n/g, '\\n') %>',
@@ -38,7 +35,6 @@
                         Подробнее
                     </button>
 
-                    <!-- Кнопка "Заказать" (или disabled для неавторизованных) -->
                     <% if (user) { %>
                         <form class="add-to-cart-form" style="display:inline;">
                             <input type="hidden" name="dishId" value="<%= dish.id %>">
@@ -48,7 +44,6 @@
                         <button class="btn" disabled title="Войдите, чтобы заказать" style="opacity:0.6;">Заказать</button>
                     <% } %>
 
-                    <!-- Админ-кнопки -->
                     <% if (user && user.roles.includes('Admin')) { %>
                         <a href="/menu/edit/<%= dish.id %>" class="btn" style="margin-right: 4px;">Редактировать</a>
                         <form action="/menu/delete/<%= dish.id %>" method="POST" style="display:inline;"
@@ -70,23 +65,19 @@
         <span class="close" onclick="closeModal()">&times;</span>
         <h2 id="modal-name"></h2>
         <p id="modal-description"></p>
-        <p id="modal-price-row"><strong>Цена:</strong> <span id="modal-price"></span></p>
+        <!-- Цена добавляется динамически в openModal -->
     </div>
 </div>
 
 <script>
-    // --- Вкладки категорий ---
+    // --- Фильтрация категорий ---
     const tabButtons = document.querySelectorAll('#category-tabs .tab-btn');
     const dishCards = document.querySelectorAll('#dishes-container .dish-card');
 
     function filterDishes(categoryId) {
         dishCards.forEach(card => {
             const cardCategory = card.getAttribute('data-category-id');
-            if (categoryId === 'all' || cardCategory === categoryId) {
-                card.style.display = '';
-            } else {
-                card.style.display = 'none';
-            }
+            card.style.display = (categoryId === 'all' || cardCategory === categoryId) ? '' : 'none';
         });
     }
 
@@ -100,10 +91,23 @@
 
     // --- Модальное окно ---
     function openModal(name, description, price) {
-        document.getElementById('modal-name').textContent = name;
-        document.getElementById('modal-description').textContent = description || '';
-        document.getElementById('modal-price').textContent = price || '';
-        document.getElementById('modal-price-row').style.display = price ? '' : 'none';
+        const modalName = document.getElementById('modal-name');
+        const modalDesc = document.getElementById('modal-description');
+        modalName.textContent = name;
+        modalDesc.textContent = description || '';
+
+        // Удаляем старый элемент цены, если есть
+        const oldPriceRow = document.getElementById('modal-price-row');
+        if (oldPriceRow) oldPriceRow.remove();
+
+        // Если цена передана, добавляем элемент
+        if (price) {
+            const priceRow = document.createElement('p');
+            priceRow.id = 'modal-price-row';
+            priceRow.innerHTML = '<strong>Цена:</strong> <span id="modal-price">' + price + '</span>';
+            modalDesc.parentNode.insertBefore(priceRow, modalDesc.nextSibling);
+        }
+
         document.getElementById('dishModal').style.display = 'block';
     }
 
@@ -113,9 +117,7 @@
 
     window.onclick = function(event) {
         const modal = document.getElementById('dishModal');
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
+        if (event.target === modal) modal.style.display = 'none';
     }
 </script>
 

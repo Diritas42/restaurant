@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (modal) {
                     document.getElementById('modal-name').textContent = 'Добавлено в корзину!';
                     document.getElementById('modal-description').textContent = 'Блюдо успешно добавлено.';
-                    document.getElementById('modal-price').textContent = '';
+                    const oldPriceRow = document.getElementById('modal-price-row');
+                    if (oldPriceRow) oldPriceRow.remove();
                     modal.style.display = 'block';
                     setTimeout(() => { modal.style.display = 'none'; }, 2000);
                 }
