@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../db/database');
 
+// Только для авторизованных
 function requireAuth(req, res, next) {
     if (req.session.user) return next();
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Необходимо войти' });
 }
 
 router.use(requireAuth);
@@ -13,7 +14,7 @@ router.use((req, res, next) => {
     next();
 });
 
-// Добавление в корзину (AJAX)
+// Добавление блюда в корзину (AJAX)
 router.post('/add', async (req, res) => {
     const dishId = parseInt(req.body.dishId, 10);
     try {
@@ -28,10 +29,20 @@ router.post('/add', async (req, res) => {
         const dish = result.rows[0];
         const cart = req.session.cart;
         const existing = cart.find(item => item.id === dishId);
+
         if (existing) {
+            if (existing.quantity >= 20) {
+                return res.status(400).json({ error: 'Максимум 20 порций одного блюда' });
+            }
             existing.quantity += 1;
         } else {
-            cart.push({ id: dish.id, name: dish.name, price: dish.price, image_url: dish.image_url, quantity: 1 });
+            cart.push({
+                id: dish.id,
+                name: dish.name,
+                price: dish.price,
+                image_url: dish.image_url,
+                quantity: 1
+            });
         }
         res.json({ success: true });
     } catch (err) {
@@ -40,7 +51,7 @@ router.post('/add', async (req, res) => {
     }
 });
 
-// Просмотр корзины (страница)
+// Просмотр корзины
 router.get('/', (req, res) => {
     const cart = req.session.cart;
     let total = 0;
@@ -53,15 +64,13 @@ router.get('/', (req, res) => {
 // Обновление количества
 router.post('/update/:id', (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const quantity = parseInt(req.body.quantity, 10);
+    let quantity = parseInt(req.body.quantity, 10);
+    if (isNaN(quantity) || quantity < 1) quantity = 1;
+    if (quantity > 20) quantity = 20;   // принудительное ограничение
     const cart = req.session.cart;
     const item = cart.find(i => i.id === id);
     if (item) {
-        if (quantity > 0) {
-            item.quantity = quantity;
-        } else {
-            req.session.cart = cart.filter(i => i.id !== id);
-        }
+        item.quantity = quantity;
     }
     res.redirect('/cart');
 });

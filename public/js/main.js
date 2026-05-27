@@ -14,9 +14,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: new URLSearchParams(formData).toString()
                 });
 
-                if (!response.ok) throw new Error('Ошибка добавления');
+                const data = await response.json();
 
-                // Показываем уведомление через модальное окно
+                if (!response.ok) {
+                    // Показываем ошибку от сервера
+                    const modal = document.getElementById('dishModal');
+                    if (modal) {
+                        document.getElementById('modal-name').textContent = 'Ошибка';
+                        document.getElementById('modal-description').textContent = data.error || 'Не удалось добавить';
+                        const oldPriceRow = document.getElementById('modal-price-row');
+                        if (oldPriceRow) oldPriceRow.remove();
+                        modal.style.display = 'block';
+                        setTimeout(() => { modal.style.display = 'none'; }, 2500);
+                    }
+                    return;
+                }
+
+                // Успешное добавление
                 const modal = document.getElementById('dishModal');
                 if (modal) {
                     document.getElementById('modal-name').textContent = 'Добавлено в корзину!';
@@ -27,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => { modal.style.display = 'none'; }, 2000);
                 }
             } catch (err) {
-                alert('Не удалось добавить блюдо');
+                alert('Ошибка соединения');
                 console.error(err);
             }
         });
@@ -38,9 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statusForms.forEach(form => {
         const select = form.querySelector('select');
         if (select) {
-            select.addEventListener('change', () => {
-                form.requestSubmit(); // отправляет форму через submit
-            });
+            select.addEventListener('change', () => form.requestSubmit());
         }
 
         form.addEventListener('submit', async (e) => {
@@ -58,14 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (!response.ok) throw new Error('Ошибка изменения статуса');
-
                 const data = await response.json();
 
-                // Обновляем текст статуса в строке
                 const statusCell = row.querySelector('.status-cell');
                 if (statusCell) statusCell.textContent = data.status_name;
 
-                // Обновляем кнопку удаления: показываем, если статус 5 или 6
                 const deleteCell = row.querySelector('.delete-cell');
                 if (deleteCell) {
                     if (data.status_id === 5 || data.status_id === 6) {
@@ -79,12 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                // Если статус стал "Отменён", можно обновить внешний вид строки
-                if (data.status_id === 6) {
-                    row.style.opacity = '0.6';
-                } else {
-                    row.style.opacity = '1';
-                }
+                row.style.opacity = (data.status_id === 6) ? '0.6' : '1';
 
             } catch (err) {
                 alert('Не удалось изменить статус');
@@ -93,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ========== Автообновление статусов на странице пользователя (polling) ==========
+    // ========== Автообновление статусов на странице пользователя ==========
     if (window.location.pathname === '/orders') {
         setInterval(async () => {
             try {
@@ -108,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error('Ошибка обновления статусов:', err);
             }
-        }, 15000); // 15 секунд
+        }, 15000);
     }
-
 });
