@@ -12,5 +12,4 @@ pool.on('error', (err) => {
     console.error('Неожиданная ошибка PostgreSQL', err);
 });
 
-// Важно: в serverless среде следует кэшировать пул глобально
 module.exports = { pool };
