@@ -27,7 +27,7 @@
                     <td class="center"><%= item.price %> BYN</td>
                     <td class="center">
                         <form action="/cart/update/<%= item.id %>" method="POST" style="display:inline;">
-                            <input type="number" name="quantity" value="<%= item.quantity %>" min="1" max="20"
+                            <input type="number" name="quantity" value="<%= item.quantity %>" min="1"
                                    style="width:60px; padding:4px; border-radius:4px; border:1px solid var(--border-color);">
                             <button type="submit" class="btn" style="padding:4px 8px; font-size:0.9em;">Обновить</button>
                         </form>
