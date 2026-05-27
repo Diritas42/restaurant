@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const { pool } = require('./db/database');
 const path = require('path');
 const indexRoutes = require('./routes/index');
 const menuRoutes = require('./routes/menu');
@@ -11,12 +13,20 @@ const orderRoutes = require('./routes/orders');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Настройка сессий (понадобится позже для входа)
+// Настройка сессий
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'fallback_dev_key',
+    store: new pgSession({
+        pool: pool,
+        tableName: 'session'
+    }),
+    secret: process.env.SESSION_SECRET || 'секретный_ключ_для_разработки',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // в продакшене true с HTTPS
+    cookie: {
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        secure: false,
+        httpOnly: true
+    }
 }));
 
 // Статические файлы
