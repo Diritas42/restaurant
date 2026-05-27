@@ -1,0 +1,60 @@
+<%- include('partials/header', { currentPage: 'menu' }) %>
+
+<div class="content">
+    <h2 style="text-align:center; color:#fff;">Редактировать блюдо</h2>
+
+    <% if (error) { %>
+        <p style="color: red; text-align: center;"><%= error %></p>
+    <% } %>
+
+    <form action="/menu/edit/<%= dish.id %>" method="POST" style="max-width: 500px; margin: 0 auto;">
+        <div style="margin-bottom: 15px;">
+            <label>Название:</label><br>
+            <input type="text" name="name" value="<%= dish.name %>" required
+                   style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color); background: #fff; color: #000;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Категория:</label><br>
+            <select name="category_id" required
+                    style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color); background: #fff; color: #000;">
+                <% categories.forEach(function(cat) { %>
+                    <option value="<%= cat.id %>" <%= cat.id === dish.category_id ? 'selected' : '' %>><%= cat.name %></option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Цена (BYN):</label><br>
+            <input type="number" step="0.01" name="price" value="<%= dish.price %>" required
+                   style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color); background: #fff; color: #000;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Описание:</label><br>
+            <textarea name="description" rows="5"
+                      style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color); background: #fff; color: #000;"><%= dish.description || '' %></textarea>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label>Путь к изображению (например, assets/...):</label><br>
+            <input type="text" name="image_url" value="<%= dish.image_url || '' %>"
+                   style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color); background: #fff; color: #000;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label>
+                <input type="checkbox" name="is_available" <%= dish.is_available ? 'checked' : '' %>>
+                Доступно для заказа
+            </label>
+        </div>
+
+        <button type="submit" class="btn" style="width:100%; padding:12px; font-size:1.1em;">Сохранить изменения</button>
+    </form>
+
+    <p style="text-align: center; margin-top: 15px;">
+        <a href="/menu" class="btn">← Назад к меню</a>
+    </p>
+</div>
+
+<%- include('partials/footer') %>

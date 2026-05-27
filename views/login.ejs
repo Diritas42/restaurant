@@ -1,0 +1,27 @@
+<%- include('partials/header', { currentPage: 'login' }) %>
+
+<div class="content">
+    <h2 style="text-align:center; color:#fff;">Вход</h2>
+
+    <% if (error) { %>
+        <p style="color: red; text-align: center;"><%= error %></p>
+    <% } %>
+
+    <form action="/login" method="POST" style="max-width: 400px; margin: 20px auto;">
+        <div style="margin-bottom: 15px;">
+            <label>Email:</label><br>
+            <input type="email" name="email" required style="width:100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #fff; color: #000;">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label>Пароль:</label><br>
+            <input type="password" name="password" required style="width:100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: #fff; color: #000;">
+        </div>
+        <button type="submit" class="btn" style="width:100%; padding: 10px; font-size: 1em; cursor:pointer;">Войти</button>
+    </form>
+
+    <p style="text-align:center; margin-top: 15px; font-size: 0.85em;">
+        Нет аккаунта? <a href="/register" style="color: var(--border-color);">Зарегистрироваться</a>
+    </p>
+</div>
+
+<%- include('partials/footer') %>

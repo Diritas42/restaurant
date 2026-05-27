@@ -1,0 +1,57 @@
+<%- include('partials/header', { currentPage: 'admin' }) %>
+
+<div class="content">
+    <h2 style="text-align:center; color:#fff;">Управление заказами</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>Пользователь</th>
+            <th>Дата</th>
+            <th class="center">Сумма</th>
+            <th class="center">Статус</th>
+            <th>Адрес</th>
+            <th class="center">Изменить статус</th>
+            <th class="center">Удалить</th>
+        </tr>
+        </thead>
+        <tbody>
+        <% orders.forEach(function(order) { %>
+            <tr data-order-id="<%= order.id %>">
+                <td>#<%= order.id %></td>
+                <td><%= order.email %></td>
+                <td><%= new Date(order.order_date).toLocaleString('ru-RU') %></td>
+                <td class="center"><%= order.total_amount %> BYN</td>
+                <td class="center status-cell"><%= order.status_name %></td>
+                <td><%= order.delivery_address || 'Самовывоз' %></td>
+                <td class="center">
+                    <form class="status-change-form" style="display:inline;">
+                        <input type="hidden" name="orderId" value="<%= order.id %>">
+                        <select name="statusId" style="padding:4px; border-radius:4px;">
+                            <option value="1" <%= order.status_id == 1 ? 'selected' : '' %>>Новый</option>
+                            <option value="2" <%= order.status_id == 2 ? 'selected' : '' %>>Готовится</option>
+                            <option value="3" <%= order.status_id == 3 ? 'selected' : '' %>>Готов</option>
+                            <option value="4" <%= order.status_id == 4 ? 'selected' : '' %>>В доставке</option>
+                            <option value="5" <%= order.status_id == 5 ? 'selected' : '' %>>Выполнен</option>
+                            <option value="6" <%= order.status_id == 6 ? 'selected' : '' %>>Отменён</option>
+                        </select>
+                        <!-- Кнопка не нужна, отправка по change через JS -->
+                    </form>
+                </td>
+                <td class="center delete-cell">
+                    <% if (order.status_id == 5 || order.status_id == 6) { %>
+                        <form action="/admin/orders/delete/<%= order.id %>" method="POST" onsubmit="return confirm('Удалить заказ №<%= order.id %> навсегда?');">
+                            <button type="submit" class="btn" style="background-color: #a33;">Удалить</button>
+                        </form>
+                    <% } else { %>
+                        <span style="color: #666;">—</span>
+                    <% } %>
+                </td>
+            </tr>
+        <% }); %>
+        </tbody>
+    </table>
+</div>
+
+<%- include('partials/footer') %>

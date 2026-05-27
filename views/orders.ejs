@@ -1,0 +1,46 @@
+<%- include('partials/header', { currentPage: 'orders' }) %>
+
+<div class="content">
+    <h2 style="text-align:center; color:#fff;">История заказов</h2>
+
+    <% if (orders && orders.length > 0) { %>
+        <table>
+            <thead>
+            <tr>
+                <th>№ заказа</th>
+                <th>Дата</th>
+                <th class="center">Сумма</th>
+                <th class="center">Статус</th>
+                <th class="center">Ожидаемое выполнение</th>
+                <th>Адрес</th>
+                <th class="center">Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% orders.forEach(function(order) { %>
+                <tr>
+                    <td>#<%= order.id %></td>
+                    <td><%= new Date(order.order_date).toLocaleString('ru-RU') %></td>
+                    <td class="center"><%= order.total_amount %> BYN</td>
+                    <td class="center order-status" data-order-id="<%= order.id %>"><%= order.status_name %></td>
+                    <td class="center"><%= order.estimated_completion_time ? new Date(order.estimated_completion_time).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'}) : '—' %></td>
+                    <td><%= order.delivery_address || 'Самовывоз' %></td>
+                    <td class="center">
+                        <% if (order.status_id != 5 && order.status_id != 6) { %>
+                            <form action="/orders/delete/<%= order.id %>" method="POST" onsubmit="return confirm('Отменить заказ №<%= order.id %>?');">
+                                <button type="submit" class="btn" style="background-color: #a33;">Отменить</button>
+                            </form>
+                        <% } else { %>
+                            <span style="color: #666;">—</span>
+                        <% } %>
+                    </td>
+                </tr>
+            <% }); %>
+            </tbody>
+        </table>
+    <% } else { %>
+        <p style="text-align:center; color:#aaa;">У вас пока нет заказов.</p>
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>

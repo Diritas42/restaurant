@@ -1,0 +1,51 @@
+<%- include('partials/header', { currentPage: 'cart' }) %>
+
+<div class="content">
+    <h2 style="text-align:center; color:#fff;">Корзина</h2>
+
+    <% if (cart && cart.length > 0) { %>
+        <table style="width:100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <th style="text-align:left; padding:10px;">Блюдо</th>
+                <th style="text-align:center;">Цена</th>
+                <th style="text-align:center;">Кол-во</th>
+                <th style="text-align:center;">Сумма</th>
+                <th></th>
+            </tr>
+            <% cart.forEach(function(item) { %>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding:10px;">
+                        <% if (item.image_url) { %>
+                            <img src="/<%= item.image_url %>" alt="<%= item.name %>" style="width:50px; height:50px; object-fit:cover; border-radius:6px; vertical-align:middle;">
+                        <% } %>
+                        <%= item.name %>
+                    </td>
+                    <td style="text-align:center;"><%= item.price %> BYN</td>
+                    <td style="text-align:center;">
+                        <form action="/cart/update/<%= item.id %>" method="POST" style="display:inline;">
+                            <input type="number" name="quantity" value="<%= item.quantity %>" min="1" max="20" style="width:60px; padding:4px; border-radius:4px; border:1px solid var(--border-color);">
+                            <button type="submit" class="btn" style="padding:4px 8px; font-size:0.9em;">Обновить</button>
+                        </form>
+                    </td>
+                    <td style="text-align:center;"><%= (item.price * item.quantity).toFixed(2) %> BYN</td>
+                    <td>
+                        <form action="/cart/remove/<%= item.id %>" method="POST">
+                            <button type="submit" class="btn" style="background-color:#a33; padding:4px 8px;">×</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
+        </table>
+        <p style="text-align:right; font-size:1.2em; margin-bottom:20px;">
+            <strong>Итого: <%= total.toFixed(2) %> BYN</strong>
+        </p>
+        <div style="text-align: center;">
+            <a href="/order" class="btn" style="font-size:1.1em; padding:12px 30px;">Оформить заказ</a>
+        </div>
+    <% } else { %>
+        <p style="text-align:center; color:#aaa;">Ваша корзина пуста.</p>
+        <p style="text-align:center;"><a href="/menu" class="btn">Перейти в меню</a></p>
+    <% } %>
+</div>
+
+<%- include('partials/footer') %>

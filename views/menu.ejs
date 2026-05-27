@@ -1,0 +1,122 @@
+<%- include('partials/header', { currentPage: 'menu' }) %>
+
+<div class="content">
+    <h2 style="text-align:center; margin-bottom:20px; color:#fff;">Наше меню</h2>
+
+    <% if (user && user.roles.includes('Admin')) { %>
+        <p style="text-align: right; margin-bottom: 20px;">
+            <a href="/menu/add" class="btn">Добавить блюдо</a>
+        </p>
+    <% } %>
+
+    <!-- Вкладки категорий -->
+    <div id="category-tabs" style="text-align: center; margin-bottom: 20px;">
+        <button class="tab-btn active" data-category="all">Все</button>
+        <% categories.forEach(function(cat) { %>
+            <button class="tab-btn" data-category="<%= cat.id %>"><%= cat.name %></button>
+        <% }); %>
+    </div>
+
+    <!-- Блюда -->
+    <% if (dishes && dishes.length > 0) { %>
+        <div class="menu-dishes" id="dishes-container">
+            <% dishes.forEach(function(dish) { %>
+                <div class="dish-card" data-category-id="<%= dish.category_id %>">
+                    <% if (dish.image_url) { %>
+                        <img src="/<%= dish.image_url %>" alt="<%= dish.name %>">
+                    <% } else { %>
+                        <img src="/assets/placeholder.jpg" alt="Нет фото">
+                    <% } %>
+                    <h3><%= dish.name %></h3>
+                    <div class="price"><%= dish.price %> BYN</div>
+
+                    <!-- Кнопка "Подробнее" -->
+                    <button class="btn"
+                            onclick="openModal('<%= dish.name %>',
+                                    '<%= dish.description.replace(/'/g, "\\'").replace(/\n/g, '\\n') %>',
+                                    '<%= dish.price %> BYN')">
+                        Подробнее
+                    </button>
+
+                    <!-- Кнопка "Заказать" (или disabled для неавторизованных) -->
+                    <% if (user) { %>
+                        <form class="add-to-cart-form" style="display:inline;">
+                            <input type="hidden" name="dishId" value="<%= dish.id %>">
+                            <button type="submit" class="btn">Заказать</button>
+                        </form>
+                    <% } else { %>
+                        <button class="btn" disabled title="Войдите, чтобы заказать" style="opacity:0.6;">Заказать</button>
+                    <% } %>
+
+                    <!-- Админ-кнопки -->
+                    <% if (user && user.roles.includes('Admin')) { %>
+                        <a href="/menu/edit/<%= dish.id %>" class="btn" style="margin-right: 4px;">Редактировать</a>
+                        <form action="/menu/delete/<%= dish.id %>" method="POST" style="display:inline;"
+                              onsubmit="return confirm('Удалить блюдо «<%= dish.name.replace(/'/g, "\\'") %>»?');">
+                            <button type="submit" class="btn" style="background-color: #a33;">Удалить</button>
+                        </form>
+                    <% } %>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <p style="text-align:center; color:#aaa;">В меню пока нет доступных блюд.</p>
+    <% } %>
+</div>
+
+<!-- Модальное окно -->
+<div id="dishModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="modal-name"></h2>
+        <p id="modal-description"></p>
+        <p id="modal-price-row"><strong>Цена:</strong> <span id="modal-price"></span></p>
+    </div>
+</div>
+
+<script>
+    // --- Вкладки категорий ---
+    const tabButtons = document.querySelectorAll('#category-tabs .tab-btn');
+    const dishCards = document.querySelectorAll('#dishes-container .dish-card');
+
+    function filterDishes(categoryId) {
+        dishCards.forEach(card => {
+            const cardCategory = card.getAttribute('data-category-id');
+            if (categoryId === 'all' || cardCategory === categoryId) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterDishes(btn.getAttribute('data-category'));
+        });
+    });
+
+    // --- Модальное окно ---
+    function openModal(name, description, price) {
+        document.getElementById('modal-name').textContent = name;
+        document.getElementById('modal-description').textContent = description || '';
+        document.getElementById('modal-price').textContent = price || '';
+        document.getElementById('modal-price-row').style.display = price ? '' : 'none';
+        document.getElementById('dishModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('dishModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('dishModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+
+<%- include('partials/footer') %>

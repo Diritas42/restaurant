@@ -1,0 +1,55 @@
+<%- include('partials/header', { currentPage: 'cart' }) %>
+
+<div class="content">
+    <h2 style="text-align:center; color:#fff;">Оформление заказа</h2>
+    <% if (error) { %><p style="color:red; text-align:center;"><%= error %></p><% } %>
+
+    <form action="/order" method="POST" style="max-width:600px; margin:0 auto;">
+        <p style="margin:15px 0;">Выберите способ получения:</p>
+        <div style="margin-bottom:20px;">
+            <label style="display:block; margin-bottom:8px;">
+                <input type="radio" name="deliveryMethod" value="pickup" checked> Самовывоз
+            </label>
+            <label style="display:block; margin-bottom:8px;">
+                <input type="radio" name="deliveryMethod" value="delivery"> Доставка на дом
+            </label>
+        </div>
+
+        <div id="address-field" style="display:none; margin-bottom:15px;">
+            <label>Адрес доставки:</label><br>
+            <input type="text" name="address" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color);" placeholder="Улица, дом, квартира">
+        </div>
+
+        <div style="margin-bottom:15px;">
+            <label>Комментарий к заказу:</label><br>
+            <textarea name="comment" style="width:100%; padding:8px; border-radius:6px; border:1px solid var(--border-color);" rows="3"></textarea>
+        </div>
+
+        <h3 style="color:#fff; margin-bottom:10px;">Ваш заказ:</h3>
+        <ul style="list-style:none; padding:0;">
+            <% cart.forEach(function(item) { %>
+                <li style="padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.1);">
+                    <%= item.name %> × <%= item.quantity %> = <%= (item.price * item.quantity).toFixed(2) %> BYN
+                </li>
+            <% }); %>
+        </ul>
+        <p style="text-align:right; font-size:1.2em;"><strong>Итого: <%= total.toFixed(2) %> BYN</strong></p>
+
+        <button type="submit" class="btn" style="width:100%; padding:12px; font-size:1.1em;">Подтвердить заказ</button>
+    </form>
+</div>
+
+<script>
+    const radioDelivery = document.querySelector('input[value="delivery"]');
+    const radioPickup = document.querySelector('input[value="pickup"]');
+    const addressField = document.getElementById('address-field');
+
+    function toggleAddress() {
+        addressField.style.display = radioDelivery.checked ? 'block' : 'none';
+    }
+    radioDelivery.addEventListener('change', toggleAddress);
+    radioPickup.addEventListener('change', toggleAddress);
+    toggleAddress();
+</script>
+
+<%- include('partials/footer') %>
