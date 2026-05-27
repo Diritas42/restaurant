@@ -14,23 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: new URLSearchParams(formData).toString()
                 });
 
-                const data = await response.json();
+                if (!response.ok) throw new Error('Ошибка добавления');
 
-                if (!response.ok) {
-                    // Показываем ошибку от сервера
-                    const modal = document.getElementById('dishModal');
-                    if (modal) {
-                        document.getElementById('modal-name').textContent = 'Ошибка';
-                        document.getElementById('modal-description').textContent = data.error || 'Не удалось добавить';
-                        const oldPriceRow = document.getElementById('modal-price-row');
-                        if (oldPriceRow) oldPriceRow.remove();
-                        modal.style.display = 'block';
-                        setTimeout(() => { modal.style.display = 'none'; }, 2500);
-                    }
-                    return;
-                }
-
-                // Успешное добавление
                 const modal = document.getElementById('dishModal');
                 if (modal) {
                     document.getElementById('modal-name').textContent = 'Добавлено в корзину!';
@@ -41,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => { modal.style.display = 'none'; }, 2000);
                 }
             } catch (err) {
-                alert('Ошибка соединения');
+                alert('Не удалось добавить блюдо');
                 console.error(err);
             }
         });
