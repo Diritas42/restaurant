@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const { pool } = require('../db/database');
 
 // Только для авторизованных
 function requireAuth(req, res, next) {
@@ -14,41 +13,32 @@ router.use((req, res, next) => {
     next();
 });
 
-// Добавление блюда в корзину (AJAX)
-router.post('/add', async (req, res) => {
+// Добавление блюда в корзину (AJAX) – без запроса к БД
+router.post('/add', (req, res) => {
     const dishId = parseInt(req.body.dishId, 10);
-    try {
-        const result = await pool.query(
-            'SELECT id, name, price, image_url FROM menu_items WHERE id = $1 AND is_available = true',
-            [dishId]
-        );
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Блюдо не найдено' });
-        }
+    // Дополнительные данные блюда можно передать скрытыми полями,
+    // но здесь мы просто увеличиваем количество, если блюдо уже в корзине.
+    // Название, цену и картинку берём из формы (см. menu.ejs).
+    const { name, price, imageUrl } = req.body;
 
-        const dish = result.rows[0];
-        const cart = req.session.cart;
-        const existing = cart.find(item => item.id === dishId);
+    const cart = req.session.cart;
+    const existing = cart.find(item => item.id === dishId);
 
-        if (existing) {
-            if (existing.quantity >= 20) {
-                return res.status(400).json({ error: 'Максимум 20 порций одного блюда' });
-            }
-            existing.quantity += 1;
-        } else {
-            cart.push({
-                id: dish.id,
-                name: dish.name,
-                price: dish.price,
-                image_url: dish.image_url,
-                quantity: 1
-            });
+    if (existing) {
+        if (existing.quantity >= 20) {
+            return res.status(400).json({ error: 'Максимум 20 порций одного блюда' });
         }
-        res.json({ success: true });
-    } catch (err) {
-        console.error('Ошибка добавления в корзину:', err);
-        res.status(500).json({ error: 'Ошибка сервера' });
+        existing.quantity += 1;
+    } else {
+        cart.push({
+            id: dishId,
+            name: name || 'Блюдо',
+            price: parseFloat(price) || 0,
+            image_url: imageUrl || '',
+            quantity: 1
+        });
     }
+    res.json({ success: true });
 });
 
 // Просмотр корзины
@@ -66,7 +56,7 @@ router.post('/update/:id', (req, res) => {
     const id = parseInt(req.params.id, 10);
     let quantity = parseInt(req.body.quantity, 10);
     if (isNaN(quantity) || quantity < 1) quantity = 1;
-    if (quantity > 20) quantity = 20;   // принудительное ограничение
+    if (quantity > 20) quantity = 20;
     const cart = req.session.cart;
     const item = cart.find(i => i.id === id);
     if (item) {

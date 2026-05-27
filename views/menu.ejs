@@ -36,10 +36,13 @@
                     </button>
 
                     <% if (user) { %>
-                        <form class="add-to-cart-form" style="display:inline;">
-                            <input type="hidden" name="dishId" value="<%= dish.id %>">
-                            <button type="submit" class="btn">Заказать</button>
-                        </form>
+                            <form class="add-to-cart-form" style="display:inline;">
+                                <input type="hidden" name="dishId" value="<%= dish.id %>">
+                                <input type="hidden" name="name" value="<%= dish.name %>">
+                                <input type="hidden" name="price" value="<%= dish.price %>">
+                                <input type="hidden" name="imageUrl" value="<%= dish.image_url || '' %>">
+                                <button type="submit" class="btn">Заказать</button>
+                            </form>
                     <% } else { %>
                         <button class="btn" disabled title="Войдите, чтобы заказать" style="opacity:0.6;">Заказать</button>
                     <% } %>
